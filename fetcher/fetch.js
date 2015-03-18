@@ -7,27 +7,25 @@ var Timer = require('../app/scripts/timer');
 var config = require('../app/scripts/config');
 var database = require('./database');
 
-var dbCollection = null;
-
 function main() {
     database.connect()
     .then(function(db) {
         console.log('Connected to mongo');
         dbCollection = db.collection('locations');
-        startFetchLoop();
+        startFetchLoop(dbCollection);
     });
 }
 
-function startFetchLoop() {
+function startFetchLoop(dbCollection) {
     var timer = new Timer(function() {
-        return getAndWriteVehicles();
+        return getAndWriteVehicles(dbCollection);
     }, {
         interval: 3 * 1000
     });
     timer.start();
 }
 
-function getAndWriteVehicles() {
+function getAndWriteVehicles(dbCollection) {
     return requestGet(config.apiUrl)
     .then(function(response) {
         var data = JSON.parse(response[0].body);
@@ -37,18 +35,24 @@ function getAndWriteVehicles() {
                 latitude: vehicle.latitude,
                 longitude: vehicle.longitude,
                 line: vehicle.line,
-                rotation: vehicle.rotation
+                rotation: vehicle.rotation,
+                origin: vehicle.origin,
+                destination: vehicle.destination,
+                operator: vehicle.operator,
+                direction: vehicle.direction
             };
         });
 
-        var filePath = 'data/' + data.responseUnixTime + '.json';
-        fs.writeFileSync(filePath, JSON.stringify(smallVehicles));
-        //database.insert(dbCollection, smallVehicles)
-        console.log('Wrote to', filePath);
+        console.log(new Date(), 'Add ' + smallVehicles.length + ' vehicles to db');
+        var doc = {
+            vehicles: smallVehicles,
+            responseDate: new Date(data.responseUnixTime)
+        };
 
+        database.insert(dbCollection, doc);
     }).catch(function(err) {
         console.error('Error fetching');
-        console.error(err);
+        throw err;
     });
 }
 

@@ -1,11 +1,11 @@
 var Promise = require('bluebird');
-var MongoClient = require('mongodb').MongoClient;
-Promise.promisifyAll(MongoClient);
+var mongo = require('mongodb');
+Promise.promisifyAll(mongo);
 
 var url = 'mongodb://localhost:27017/bussevisual';
 
 function connect() {
-    return MongoClient.connectAsync(url)
+    return mongo.MongoClient.connectAsync(url)
     .then(function(db) {
         return db;
     })
