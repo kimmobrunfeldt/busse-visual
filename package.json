@@ -6,7 +6,9 @@
   "main": "",
   "dependencies": {
     "bluebird": "^2.9.9",
-    "lodash": "^3.2.0"
+    "lodash": "^3.2.0",
+    "mongodb": "^1.4.34",
+    "request": "^2.53.0"
   },
   "devDependencies": {
     "autoprefixer": "^5.1.0",

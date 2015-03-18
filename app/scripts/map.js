@@ -1,9 +1,12 @@
-var Promise = require('bluebird');
 var _ = require('lodash');
-
 var config = require('./config');
-var utils = require('./utils');
 
+var lineOptions = {
+    opacity: 0.5,
+    weight: 2,
+    color: '#4bb5c1',
+    clickable: false
+};
 
 function Map(containerId) {
     // Options shared across providers
@@ -40,18 +43,41 @@ function Map(containerId) {
         config.initialPosition.longitude],
         config.initialZoom
     );
-
-    this._heat = L.heatLayer([], {maxZoom: 18}).addTo(this._map);
+    this._lines = {};
 }
 
-Map.prototype.addHeat = function addHeat(latitude, longitude) {
+Map.prototype.addPoint = function addPoint(id, latitude, longitude) {
+    if (!id) {
+        this.createSingleLine(latitude, longitude);
+        return;
+    }
+
     // Init marker
+    if (!_.has(this._lines, id)) {
+        this.createLine(id);
+    }
+
     var pos = new L.LatLng(latitude, longitude);
-    this._heat.addLatLng(pos);
+    this._lines[id].addLatLng(pos);
 };
 
-Map.prototype.removeMarker = function removeMarker(id) {
-    throw new Error('Not implemented');
+Map.prototype.removeLine = function removeLine(id) {
+    this._map.removeLayer(this._lines[id]);
+    delete this._lines[id];
+};
+
+Map.prototype.createLine = function createLine(id) {
+    var polyline = L.polyline([], lineOptions);
+    polyline.addTo(this._map);
+    this._lines[id] = polyline;
+    return polyline;
+};
+
+Map.prototype.createSingleLine = function createSingleLine(latitude, longitude) {
+    var pos = new L.LatLng(latitude, longitude);
+    var polyline = L.polyline([pos], lineOptions);
+
+    polyline.addTo(this._map);
 };
 
 

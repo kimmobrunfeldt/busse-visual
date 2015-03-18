@@ -31,7 +31,7 @@ function getAndUpdateVehicles(map) {
 
 function updateVehicles(map, vehicles) {
     _.each(vehicles, function(vehicle) {
-        map.addHeat(vehicle.latitude, vehicle.longitude);
+        map.addPoint(vehicle.id, vehicle.latitude, vehicle.longitude);
     });
 }
 
