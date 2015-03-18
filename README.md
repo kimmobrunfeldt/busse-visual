@@ -14,3 +14,16 @@ Tech stack:
 ## Install
 
     npm install
+
+## MongoDB
+
+Check DB size:
+
+bash
+
+    mongo
+
+mongo
+
+    use bussevisual
+    db.stats()
